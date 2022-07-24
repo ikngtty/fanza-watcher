@@ -1,8 +1,18 @@
 # frozen_string_literal: true
 
+require 'active_record'
 require 'nokogiri'
 require 'open-uri'
 require 'thor'
+
+ActiveRecord::Base.establish_connection(
+  'adapter' => 'sqlite3',
+  'database' => './db/development.sqlite3'
+)
+
+class Video < ActiveRecord::Base
+  self.primary_key = :cid
+end
 
 class CLI < Thor
   desc 'add cid', 'add a video to watch'
@@ -11,13 +21,13 @@ class CLI < Thor
     html = uri.open('Cookie' => 'age_check_done=1')
     doc = Nokogiri::HTML5(html)
 
+    video = Video.new
+    video.cid = cid
+
     hreview = doc.at_css('.hreview')
-    sales_info = hreview.at_css('.tx-hangaku')&.inner_text
-    puts sales_info
-    additional_info = hreview.at_css('.red')&.inner_text
-    puts additional_info
-    title = hreview.at_css('#title').inner_text
-    puts title
+    video.sales_info = hreview.at_css('.tx-hangaku')&.inner_text
+    video.additional_info = hreview.at_css('.red')&.inner_text
+    video.title = hreview.at_css('#title').inner_text
 
     prices = {}
     %w[4k hd dl st].each do |price_kind|
@@ -28,8 +38,12 @@ class CLI < Thor
       sales_price = price_area.at_css('.tx-hangaku')&.inner_text
       prices[price_kind] = get_price_from_text(sales_price || price_area.inner_text)
     end
+    video.price_4k = prices['4k']
+    video.price_hd = prices['hd']
+    video.price_dl = prices['dl']
+    video.price_st = prices['st']
 
-    p prices
+    video.save
   end
 end
 

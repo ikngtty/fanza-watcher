@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    nokogiri (1.13.8-x86_64-darwin)
+      racc (~> 1.4)
+    racc (1.6.0)
+    thor (1.2.1)
+
+PLATFORMS
+  x86_64-darwin-21
+
+DEPENDENCIES
+  nokogiri
+  thor
+
+BUNDLED WITH
+   2.3.18

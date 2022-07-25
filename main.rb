@@ -5,6 +5,7 @@ require 'thor'
 
 require_relative './lib/fanza'
 require_relative './lib/video'
+require_relative './lib/video_update'
 
 ActiveRecord::Base.establish_connection(
   'adapter' => 'sqlite3',
@@ -21,6 +22,21 @@ class CLI < Thor
 
     video = Fanza.new.fetch_video(cid)
     video.save
+  end
+
+  desc 'update', 'update videos'
+  def update
+    Video.all.each do |video|
+      new_video = Fanza.new.fetch_video(video.cid)
+      sleep 1
+
+      update = VideoUpdate.new(video, new_video)
+      if update.price_change?
+        puts new_video.title
+        puts update.to_text
+      end
+      update.save
+    end
   end
 end
 

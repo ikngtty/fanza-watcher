@@ -17,6 +17,11 @@ end
 class CLI < Thor
   desc 'add cid', 'add a video to watch'
   def add(cid)
+    if try_find(Video, cid)
+      puts 'already added'
+      exit 1
+    end
+
     video = fetch_video(cid)
     video.save
   end
@@ -54,6 +59,12 @@ end
 
 def get_price_from_text(text)
   text.strip.delete_suffix('円').delete(',').to_i
+end
+
+def try_find(collection, key)
+  collection.find(key)
+rescue ActiveRecord::RecordNotFound
+  nil
 end
 
 CLI.start(ARGV)

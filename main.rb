@@ -27,16 +27,13 @@ class CLI < Thor
 
   desc 'update', 'update videos'
   def update
-    post_updates = []
-    Video.all.each do |video|
+    updates = Video.all.map do |video|
       new_video = Fanza.new.fetch_video(video.cid)
       sleep 1
-
-      update = VideoUpdate.new(video, new_video)
-      post_updates << update if update.price_change?
-      update.save
+      VideoUpdate.new(video, new_video)
     end
-    Discord.new.post_video_updates(post_updates)
+    Discord.new.post_video_updates(updates.find_all(&:price_change?))
+    updates.each(&:save)
   end
 end
 

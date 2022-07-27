@@ -1,13 +1,35 @@
 # frozen_string_literal: true
 
+require 'google/cloud/firestore'
+
 require_relative './video'
 
 class VideoDao
-  def all; end
+  def initialize
+    credentials = Google::Cloud::Firestore::Credentials.new('config/service-account-file.json')
+    @firestore = Google::Cloud::Firestore.new project_id: ENV['GCP_PROJECT_ID'],
+                                              credentials: credentials
+    @videos = @firestore.collection 'videos'
+  end
 
-  def fetch(cid); end
+  def all
+    @videos.get.map do |video|
+      JSON.parse(video.data.to_json, create_additions: true)
+    end
+  end
 
-  def add(video); end
+  def fetch(cid)
+    object = @videos.document(cid).get.data
+    return nil if object.nil?
 
-  def update(video); end
+    JSON.parse(object.to_json, create_additions: true)
+  end
+
+  def add(video)
+    @videos.document(video.cid).set(video.as_json)
+  end
+
+  def update(video)
+    @videos.document(video.cid).update(video.as_json)
+  end
 end

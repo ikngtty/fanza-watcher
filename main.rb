@@ -1,17 +1,11 @@
 # frozen_string_literal: true
 
-require 'active_record'
 require 'thor'
 
 require_relative './lib/discord'
 require_relative './lib/fanza'
 require_relative './lib/video_dao'
 require_relative './lib/video_update'
-
-ActiveRecord::Base.establish_connection(
-  'adapter' => 'sqlite3',
-  'database' => './db/development.sqlite3'
-)
 
 class CLI < Thor
   desc 'add cid', 'add a video to watch'

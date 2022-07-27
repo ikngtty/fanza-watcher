@@ -5,7 +5,7 @@ require 'thor'
 
 require_relative './lib/discord'
 require_relative './lib/fanza'
-require_relative './lib/video'
+require_relative './lib/video_dao'
 require_relative './lib/video_update'
 
 ActiveRecord::Base.establish_connection(
@@ -16,18 +16,19 @@ ActiveRecord::Base.establish_connection(
 class CLI < Thor
   desc 'add cid', 'add a video to watch'
   def add(cid)
-    if try_find(Video, cid)
+    video_dao = VideoDao.new
+    if video_dao.fetch(cid)
       puts 'already added'
       exit 1
     end
 
     video = Fanza.new.fetch_video(cid)
-    video.save
+    video_dao.add(video)
   end
 
   desc 'update', 'update videos'
   def update
-    updates = Video.all.map do |video|
+    updates = VideoDao.new.all.map do |video|
       new_video = Fanza.new.fetch_video(video.cid)
       sleep 1
       VideoUpdate.new(video, new_video)
@@ -35,12 +36,6 @@ class CLI < Thor
     Discord.new.post_video_updates(updates.find_all(&:price_change?))
     updates.each(&:save)
   end
-end
-
-def try_find(collection, key)
-  collection.find(key)
-rescue ActiveRecord::RecordNotFound
-  nil
 end
 
 CLI.start(ARGV)

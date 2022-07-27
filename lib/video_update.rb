@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './video'
+require_relative './video_dao'
 
 class VideoUpdate
   attr_reader :before, :after
@@ -39,13 +39,6 @@ class VideoUpdate
   end
 
   def save
-    Video.update(@after.cid,
-                 title: @after.title,
-                 sales_info: @after.sales_info,
-                 additional_info: @after.additional_info,
-                 price_4k: @after.price_4k,
-                 price_hd: @after.price_hd,
-                 price_dl: @after.price_dl,
-                 price_st: @after.price_st)
+    VideoDao.new.update(@after)
   end
 end

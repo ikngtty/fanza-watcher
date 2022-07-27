@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Discord
   def post_video_updates(updates)
     webhook_url = URI.parse(ENV['WEBHOOK_URL'])

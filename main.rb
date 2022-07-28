@@ -30,6 +30,16 @@ class CLI < Thor
     Discord.new.post_video_updates(updates.find_all(&:price_change?))
     updates.each(&:save)
   end
+
+  desc 'remove cid', 'remove a video'
+  def remove(cid)
+    dao = VideoDao.new
+    unless dao.fetch(cid)
+      puts 'not found'
+      exit 1
+    end
+    dao.delete(cid)
+  end
 end
 
 CLI.start(ARGV)

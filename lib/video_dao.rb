@@ -31,4 +31,8 @@ class VideoDao
   def update(video)
     @videos.doc(video.cid).update(video.as_json)
   end
+
+  def delete(cid)
+    @videos.doc(cid).delete
+  end
 end

@@ -7,8 +7,7 @@ require_relative './video'
 class VideoDao
   def initialize
     credentials = Google::Cloud::Firestore::Credentials.new('config/service-account-file.json')
-    @firestore = Google::Cloud::Firestore.new project_id: ENV['GCP_PROJECT_ID'],
-                                              credentials: credentials
+    @firestore = Google::Cloud::Firestore.new(credentials: credentials)
     @videos = @firestore.collection 'videos'
   end
 

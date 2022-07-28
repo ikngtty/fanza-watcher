@@ -40,6 +40,11 @@ class CLI < Thor
     end
     dao.delete(cid)
   end
+
+  desc 'view', 'view added videos'
+  def view
+    VideoDao.new.all.each { |video| puts video }
+  end
 end
 
 CLI.start(ARGV)

@@ -40,4 +40,9 @@ class Video
   def to_json(*)
     as_json.to_json
   end
+
+  def to_s
+    "#{cid} #{sales_info}#{additional_info}#{title} " \
+    "#{price_4k},#{price_hd},#{price_dl},#{price_st}"
+  end
 end

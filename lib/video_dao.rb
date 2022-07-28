@@ -19,17 +19,17 @@ class VideoDao
   end
 
   def fetch(cid)
-    object = @videos.document(cid).get.data
+    object = @videos.doc(cid).get.data
     return nil if object.nil?
 
     JSON.parse(object.to_json, create_additions: true)
   end
 
   def add(video)
-    @videos.document(video.cid).set(video.as_json)
+    @videos.doc(video.cid).set(video.as_json)
   end
 
   def update(video)
-    @videos.document(video.cid).update(video.as_json)
+    @videos.doc(video.cid).update(video.as_json)
   end
 end

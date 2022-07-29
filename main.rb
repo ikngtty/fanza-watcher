@@ -28,7 +28,7 @@ class CLI < Thor
       VideoUpdate.new(video, new_video)
     end
     Discord.new.post_video_updates(updates.find_all(&:price_change?))
-    updates.each(&:save)
+    updates.find_all(&:change?).each(&:save)
   end
 
   desc 'remove cid', 'remove a video'

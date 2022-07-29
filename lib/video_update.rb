@@ -38,6 +38,10 @@ class VideoUpdate
     price_4k_change? || price_hd_change? || price_dl_change? || price_st_change?
   end
 
+  def change?
+    sales_info_change? || additional_info_change? || price_change?
+  end
+
   def save
     VideoDao.new.update(@after)
   end

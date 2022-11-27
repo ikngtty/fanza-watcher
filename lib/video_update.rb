@@ -10,6 +10,10 @@ class VideoUpdate
     @after = after
   end
 
+  def title_change?
+    @before.title != @after.title
+  end
+
   def sales_info_change?
     @before.sales_info != @after.sales_info
   end
@@ -39,7 +43,7 @@ class VideoUpdate
   end
 
   def change?
-    sales_info_change? || additional_info_change? || price_change?
+    title_change? || sales_info_change? || additional_info_change? || price_change?
   end
 
   def save

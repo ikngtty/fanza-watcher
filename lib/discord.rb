@@ -23,6 +23,7 @@ class Discord
 
   def create_embed_of_video_update(update)
     fields = []
+    fields << { name: 'タイトル', value: "#{update.before.title} -> #{update.after.title}" } if update.title_change?
     if update.price_4k_change?
       fields << { name: '4K価格', value: "#{update.before.price_4k}円 -> #{update.after.price_4k}円" }
     end
@@ -41,6 +42,7 @@ class Discord
     if update.additional_info_change?
       fields << { name: '付加情報', value: "#{update.before.additional_info} -> #{update.after.additional_info}" }
     end
+
     { title: update.after.title,
       url: update.after.url,
       fields: fields }

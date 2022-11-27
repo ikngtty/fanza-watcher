@@ -11,7 +11,11 @@ class Fanza
     video.cid = cid
 
     uri = URI.parse("https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=#{cid}/")
-    html = uri.open('Cookie' => 'age_check_done=1')
+    begin
+      html = uri.open('Cookie' => 'age_check_done=1')
+    rescue OpenURI::HTTPError
+      return video
+    end
     doc = Nokogiri::HTML5(html)
 
     hreview = doc.at_css('.hreview')

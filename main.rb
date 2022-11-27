@@ -17,6 +17,11 @@ class CLI < Thor
     end
 
     video = Fanza.new.fetch_video(cid)
+    unless video.title
+      puts 'failed to fetch'
+      exit 1
+    end
+
     video_dao.add(video)
   end
 

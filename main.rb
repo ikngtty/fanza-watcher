@@ -23,6 +23,7 @@ class CLI < Thor
     end
 
     video_dao.add(video)
+    puts "added: #{video}"
   end
 
   desc 'update', 'update videos'
@@ -39,11 +40,13 @@ class CLI < Thor
   desc 'remove cid', 'remove a video'
   def remove(cid)
     dao = VideoDao.new
-    unless dao.fetch(cid)
+    video = dao.fetch(cid)
+    unless video
       puts 'not found'
       exit 1
     end
     dao.delete(cid)
+    puts "removed: #{video}"
   end
 
   desc 'view', 'view added videos'

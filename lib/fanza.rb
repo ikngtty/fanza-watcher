@@ -53,6 +53,11 @@ class Fanza
       ['price_hd=', '無期限', 'HD版ダウンロード ＋HD版ストリーミング'],
       ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
       ['price_st=', '7日間', 'HD版ストリーミング'],
+      # HACK: For VR, price attributes differ from text.
+      ['price_4k=', '無期限', '8KVR版ダウンロード ＋8KVR版ストリーミング'],
+      ['price_hd=', '無期限', 'HQ版ダウンロード ＋HQ版ストリーミング'],
+      # ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
+      ['price_st=', '7日間', 'HQ版ダウンロード ＋HQ版ストリーミング']
     ].each do |setter, valid_period, label|
       price_area = doc.at_xpath('//label[' +
         "div[p[.=\"#{label}\"]]" +

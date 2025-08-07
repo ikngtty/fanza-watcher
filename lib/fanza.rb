@@ -1,31 +1,24 @@
 # frozen_string_literal: true
 
 require 'nokogiri'
-require 'playwright'
 
 require_relative './video'
 
 class Fanza
-  def fetch_video(cid)
+  def fetch_video(browser, cid)
     video = Video.new
     video.cid = cid
 
-    # TODO: Keep the playwright session for multiple calls.
-    html = ''
-    Playwright.create(playwright_cli_executable_path: 'npx playwright') do |playwright|
-      playwright.chromium.launch(headless: true) do |browser|
-        page = browser.new_page
-        page.context.add_cookies([
-          {
-            url: 'https://video.dmm.co.jp',
-            name: 'age_check_done',
-            value: '1'
-          }
-        ])
-        page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
-        html = page.content
-      end
-    end
+    page = browser.new_page
+    page.context.add_cookies([
+      {
+        url: 'https://video.dmm.co.jp',
+        name: 'age_check_done',
+        value: '1'
+      }
+    ])
+    page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
+    html = page.content
 
     doc = Nokogiri::HTML5(html)
 

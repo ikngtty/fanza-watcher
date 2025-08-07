@@ -1,4 +1,4 @@
-FROM ruby:buster
+FROM ruby:3.4.5
 
 WORKDIR /usr/src/app
 COPY Gemfile Gemfile.lock ./

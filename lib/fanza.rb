@@ -52,7 +52,8 @@ class Fanza
       ['price_4k=', '無期限', '4K版ダウンロード ＋4K版ストリーミング'],
       ['price_hd=', '無期限', 'HD版ダウンロード ＋HD版ストリーミング'],
       ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
-      ['price_st=', '7日間', 'HD版ストリーミング'],
+      ['price_st=', '7日間', 'ストリーミング'],
+      ['price_st=', '7日間', 'HD版ストリーミング'], # HACK: `price_st` doubled.
       # HACK: For VR, price attributes differ from text.
       ['price_4k=', '無期限', '8KVR版ダウンロード ＋8KVR版ストリーミング'],
       ['price_hd=', '無期限', 'HQ版ダウンロード ＋HQ版ストリーミング'],

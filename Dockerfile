@@ -6,4 +6,4 @@ ENV BUNDLE_FROZEN=true
 RUN gem install bundler && bundle install
 
 COPY . ./
-CMD ["ruby", "./main.rb", "update"]
+ENTRYPOINT [ "ruby", "./main.rb" ]

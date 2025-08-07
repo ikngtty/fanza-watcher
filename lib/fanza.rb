@@ -16,9 +16,11 @@ class Fanza
         value: '1'
       }
     ])
+
     page = browser_context.new_page
     page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
     html = page.content
+    page.close
 
     doc = Nokogiri::HTML5(html)
 

@@ -2,7 +2,7 @@
 
 class Discord
   def post_video_updates(updates)
-    webhook_url = URI.parse(ENV['WEBHOOK_URL'])
+    webhook_url = URI.parse(ENV['DISCORD_WEBHOOK_URL'])
     updates.each_slice(10) do |update_bundle|
       params = {
         username: 'Fanza Watcher',

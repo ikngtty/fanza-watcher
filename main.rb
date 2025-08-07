@@ -8,7 +8,7 @@ require_relative './lib/video_dao'
 require_relative './lib/video_update'
 
 class CLI < Thor
-  desc 'add cid', 'add a video to watch'
+  desc 'add cid', 'Add a video to watch'
   def add(cid)
     video_dao = VideoDao.new
     if video_dao.fetch(cid)
@@ -26,7 +26,7 @@ class CLI < Thor
     puts "added: #{video}"
   end
 
-  desc 'update', 'update videos'
+  desc 'update', 'Update videos'
   def update
     updates = VideoDao.new.all.map do |video|
       new_video = Fanza.new.fetch_video(video.cid)
@@ -37,7 +37,7 @@ class CLI < Thor
     updates.find_all(&:change?).each(&:save)
   end
 
-  desc 'remove cid', 'remove a video'
+  desc 'remove cid', 'Remove a video'
   def remove(cid)
     dao = VideoDao.new
     video = dao.fetch(cid)
@@ -49,7 +49,7 @@ class CLI < Thor
     puts "removed: #{video}"
   end
 
-  desc 'view', 'view added videos'
+  desc 'view', 'View added videos'
   def view
     VideoDao.new.all.each { |video| puts video }
   end

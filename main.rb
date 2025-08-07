@@ -11,8 +11,8 @@ require_relative './lib/video_update'
 class CLI < Thor
   desc 'scrape CID', 'Scrape a video (for debug)'
   def scrape(cid)
-    PlaywrightUtil.use_browser do |browser|
-      puts Fanza.new.fetch_video(browser, cid)
+    PlaywrightUtil.use_browser_context do |browser_context|
+      puts Fanza.new.fetch_video(browser_context, cid)
     end
   end
 
@@ -25,8 +25,8 @@ class CLI < Thor
     end
 
     video = nil
-    PlaywrightUtil.use_browser do |browser|
-      video = Fanza.new.fetch_video(browser, cid)
+    PlaywrightUtil.use_browser_context do |browser_context|
+      video = Fanza.new.fetch_video(browser_context, cid)
     end
     unless video.title
       puts 'failed to fetch'
@@ -40,9 +40,9 @@ class CLI < Thor
   desc 'update', 'Update videos'
   def update
     updates = nil
-    PlaywrightUtil.use_browser do |browser|
+    PlaywrightUtil.use_browser_context do |browser_context|
       updates = VideoDao.new.all.map do |video|
-        new_video = Fanza.new.fetch_video(browser, video.cid)
+        new_video = Fanza.new.fetch_video(browser_context, video.cid)
         sleep 1
         VideoUpdate.new(video, new_video)
       end

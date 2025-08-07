@@ -5,18 +5,18 @@ require 'nokogiri'
 require_relative './video'
 
 class Fanza
-  def fetch_video(browser, cid)
+  def fetch_video(browser_context, cid)
     video = Video.new
     video.cid = cid
 
-    page = browser.new_page
-    page.context.add_cookies([
+    browser_context.add_cookies([
       {
         url: 'https://video.dmm.co.jp',
         name: 'age_check_done',
         value: '1'
       }
     ])
+    page = browser_context.new_page
     page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
     html = page.content
 

@@ -8,6 +8,11 @@ require_relative './lib/video_dao'
 require_relative './lib/video_update'
 
 class CLI < Thor
+  desc 'scrape CID', 'Scrape a video (for debug)'
+  def scrape(cid)
+    puts Fanza.new.fetch_video(cid)
+  end
+
   desc 'add CID', 'Add a video to watch'
   def add(cid)
     video_dao = VideoDao.new

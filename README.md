@@ -1,7 +1,7 @@
 # Fanza Watcher
 
 ## Preparation
-Set env var `WEBHOOK_URL`.
+Make `.env` file with reffering `.env.sample`.
 Set a service account key of firestore to `config/service-account-file.json`.
 
 ## Run

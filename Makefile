@@ -1,5 +1,5 @@
 IMAGE_TAG := ikngtty/fanza-watcher
-ENV_FILE_OPTION := $(shell if [ -f .env ]; then echo "--env-file .env"; fi)
+ENV_FILE_OPTION := $(if $(wildcard .env),--env-file=.env,)
 
 .PHONY: run build build_and_run
 

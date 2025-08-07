@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'nokogiri'
-require 'open-uri'
+require 'playwright'
 
 require_relative './video'
 
@@ -10,32 +10,66 @@ class Fanza
     video = Video.new
     video.cid = cid
 
-    uri = URI.parse("https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=#{cid}/")
-    begin
-      html = uri.open('Cookie' => 'age_check_done=1')
-    rescue OpenURI::HTTPError
-      return video
+    # TODO: Keep the playwright session for multiple calls.
+    html = ''
+    Playwright.create(playwright_cli_executable_path: 'npx playwright') do |playwright|
+      playwright.chromium.launch(headless: true) do |browser|
+        page = browser.new_page
+        page.context.add_cookies([
+          {
+            url: 'https://video.dmm.co.jp',
+            name: 'age_check_done',
+            value: '1'
+          }
+        ])
+        page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
+        html = page.content
+      end
     end
+
     doc = Nokogiri::HTML5(html)
 
-    hreview = doc.at_css('.hreview')
-    video.sales_info = hreview.at_css('.tx-hangaku')&.inner_text
-    video.additional_info = hreview.at_css('.red')&.inner_text
-    video.title = hreview.at_css('#title').inner_text
+    # NOTE: Duplicate the node to cut children.
+    title_dom = assert_one_dom(doc.xpath('//span[parent::h1]'), 'title').dup
 
-    prices = {}
-    %w[4k hd dl st].each do |price_kind|
-      ptn = doc.at_css("##{price_kind}")
-      next unless ptn
-
-      price_area = ptn.next.at_css('.price')
-      sales_price = price_area.at_css('.tx-hangaku')&.inner_text
-      prices[price_kind] = get_price_from_text(sales_price || price_area.inner_text)
+    sales_info_doms = title_dom.css('span.text-red-600')
+    if sales_info_doms.any?
+      sales_info_dom = assert_one_dom(sales_info_doms, 'sales info')
+      video.sales_info = sales_info_dom.content
+      sales_info_dom.unlink
     end
-    video.price_4k = prices['4k']
-    video.price_hd = prices['hd']
-    video.price_dl = prices['dl']
-    video.price_st = prices['st']
+
+    additional_info_doms = title_dom.css('span.text-red-900')
+    if additional_info_doms.any?
+      additional_info_dom = assert_one_dom(additional_info_doms, 'additional info')
+      video.additional_info = additional_info_dom.content
+      additional_info_dom.unlink
+    end
+
+    video.title = title_dom.content
+
+    [
+      ['price_4k=', '無期限', '4K版ダウンロード ＋4K版ストリーミング'],
+      ['price_hd=', '無期限', 'HD版ダウンロード ＋HD版ストリーミング'],
+      ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
+      ['price_st=', '7日間', 'HD版ストリーミング'],
+    ].each do |setter, valid_period, label|
+      price_area = doc.at_xpath('//label[' +
+        "div[p[.=\"#{label}\"]]" +
+        'and div[' +
+        "p[text()=\"#{valid_period}\"]" +
+        'and div[div[p[contains(., "円")]]]' +
+        ']' +
+        ']')
+      next unless price_area
+
+      price_dom = assert_one_dom(
+        price_area.xpath('.//p[contains(., "円") and not(contains(@class, "line-through"))]'),
+        'price'
+      )
+      price = get_price_from_text(price_dom.content)
+      video.send(setter, price)
+    end
 
     video
   end
@@ -44,5 +78,10 @@ class Fanza
 
   def get_price_from_text(text)
     text.strip.delete_suffix('円').delete(',').to_i
+  end
+
+  def assert_one_dom(doms, dom_kind)
+      raise "cannot specify the DOM of #{dom_kind}: #{doms}" unless doms.length == 1
+      doms.first
   end
 end

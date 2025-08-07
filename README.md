@@ -13,9 +13,9 @@ $ make run ARGS="add <cid>" # Besides `add`.
 
 ```
 Commands:
-  main.rb add cid         # Add a video to watch
+  main.rb add CID         # Add a video to watch
   main.rb help [COMMAND]  # Describe available commands or one specific command
-  main.rb remove cid      # Remove a video
+  main.rb remove CID      # Remove a video
   main.rb update          # Update videos
   main.rb view            # View added videos
 ```

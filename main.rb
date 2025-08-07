@@ -8,7 +8,7 @@ require_relative './lib/video_dao'
 require_relative './lib/video_update'
 
 class CLI < Thor
-  desc 'add cid', 'Add a video to watch'
+  desc 'add CID', 'Add a video to watch'
   def add(cid)
     video_dao = VideoDao.new
     if video_dao.fetch(cid)
@@ -37,7 +37,7 @@ class CLI < Thor
     updates.find_all(&:change?).each(&:save)
   end
 
-  desc 'remove cid', 'Remove a video'
+  desc 'remove CID', 'Remove a video'
   def remove(cid)
     dao = VideoDao.new
     video = dao.fetch(cid)

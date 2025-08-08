@@ -2,22 +2,30 @@
 
 require 'nokogiri'
 
+require_relative './logger'
 require_relative './video'
 
 class Fanza
+  HOST_URL = 'https://video.dmm.co.jp'
+
   def fetch_video(browser_page, cid)
     video = Video.new
     video.cid = cid
 
     browser_page.context.add_cookies([
       {
-        url: 'https://video.dmm.co.jp',
+        url: HOST_URL,
         name: 'age_check_done',
         value: '1'
       }
     ])
-    browser_page.goto("https://video.dmm.co.jp/av/content/?id=#{cid}")
+
+    url = url_video(cid)
+    Logger.info("Visiting #{url}")
+    browser_page.goto(url)
+    Logger.info("Visited #{url}")
     html = browser_page.content
+    # Logger.info("Got HTML: #{html}")
 
     doc = Nokogiri::HTML5(html)
 
@@ -69,10 +77,15 @@ class Fanza
       video.send(setter, price)
     end
 
+    Logger.info("Scraped Video: #{video}")
     video
   end
 
   private
+
+  def url_video(cid)
+    "#{HOST_URL}/av/content/?id=#{cid}"
+  end
 
   def get_price_from_text(text)
     text.strip.delete_suffix('円').delete(',').to_i

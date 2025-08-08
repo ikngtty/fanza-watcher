@@ -28,7 +28,7 @@ class CLI < Thor
     PlaywrightUtil.use_browser_page do |browser_page|
       video = Fanza.new.fetch_video(browser_page, cid)
     end
-    unless video.title
+    unless video.title # FIXME: When cid is wrong, title is "Not Found" and fetching succeeds.
       puts 'failed to fetch'
       exit 1
     end

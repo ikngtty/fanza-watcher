@@ -66,6 +66,17 @@ class Fanza
     video
   end
 
+  def inspect_video_page_price_id(browser_page, cid)
+    doc = get_video_page_root_node(browser_page, cid)
+
+    doc.xpath("//label[starts-with(@for, \"#{cid}\")]").each do |radio_label|
+      suffix = radio_label['for'].delete_prefix(cid)
+      valid_period = radio_label.children[1].child.content
+      label = radio_label.child.children[1].content
+      puts "suffix: #{suffix}, valid_period: #{valid_period}, label: #{label}"
+    end
+  end
+
   private
 
   def url_video(cid)

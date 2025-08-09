@@ -51,6 +51,16 @@ class CLI < Thor
     updates.find_all(&:change?).each(&:save)
   end
 
+  desc 'inspect_price_id', 'Inspect price ids (for debug)'
+  def inspect_price_id
+    PlaywrightUtil.use_browser_page do |browser_page|
+      VideoDao.new.all.each do |video|
+        Fanza.new.inspect_video_page_price_id(browser_page, video.cid)
+        sleep 1
+      end
+    end
+  end
+
   desc 'remove CID', 'Remove a video'
   def remove(cid)
     dao = VideoDao.new

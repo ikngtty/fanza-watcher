@@ -13,10 +13,11 @@ $ make run ARGS="add <cid>" # Besides `add`.
 
 ```
 Commands:
-  main.rb add CID         # Add a video to watch
-  main.rb help [COMMAND]  # Describe available commands or one specific command
-  main.rb remove CID      # Remove a video
-  main.rb scrape CID      # Scrape a video (for debug)
-  main.rb update          # Update videos
-  main.rb view            # View added videos
+  main.rb add CID           # Add a video to watch
+  main.rb help [COMMAND]    # Describe available commands or one specific command
+  main.rb inspect_price_id  # Inspect price ids (for debug)
+  main.rb remove CID        # Remove a video
+  main.rb scrape CID        # Scrape a video (for debug)
+  main.rb update            # Update videos
+  main.rb view              # View added videos
 ```

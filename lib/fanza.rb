@@ -12,22 +12,7 @@ class Fanza
     video = Video.new
     video.cid = cid
 
-    browser_page.context.add_cookies([
-      {
-        url: HOST_URL,
-        name: 'age_check_done',
-        value: '1'
-      }
-    ])
-
-    url = url_video(cid)
-    Logger.info("Visiting #{url}")
-    browser_page.goto(url)
-    Logger.info("Visited #{url}")
-    html = browser_page.content
-    # Logger.info("Got HTML: #{html}")
-
-    doc = Nokogiri::HTML5(html)
+    doc = get_video_page_root_node(browser_page, cid)
 
     # NOTE: Duplicate the node to cut children.
     title_dom = assert_one_dom(doc.xpath('//span[parent::h1]'), 'title').dup
@@ -85,6 +70,25 @@ class Fanza
 
   def url_video(cid)
     "#{HOST_URL}/av/content/?id=#{cid}"
+  end
+
+  def get_video_page_root_node(browser_page, cid)
+    browser_page.context.add_cookies([
+      {
+        url: HOST_URL,
+        name: 'age_check_done',
+        value: '1'
+      }
+    ])
+
+    url = url_video(cid)
+    Logger.info("Visiting #{url}")
+    browser_page.goto(url)
+    Logger.info("Visited #{url}")
+    html = browser_page.content
+    # Logger.info("Got HTML: #{html}")
+
+    Nokogiri::HTML5(html)
   end
 
   def get_price_from_text(text)

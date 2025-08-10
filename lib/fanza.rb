@@ -33,32 +33,16 @@ class Fanza
 
     video.title = title_dom.content
 
-    [
-      ['price_4k=', '無期限', '4K版ダウンロード ＋4K版ストリーミング'],
-      ['price_hd=', '無期限', 'HD版ダウンロード ＋HD版ストリーミング'],
-      ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
-      ['price_st=', '7日間', 'ストリーミング'],
-      ['price_st=', '7日間', 'HD版ストリーミング'], # HACK: `price_st` doubled.
-      # HACK: For VR, price attributes differ from text.
-      ['price_4k=', '無期限', '8KVR版ダウンロード ＋8KVR版ストリーミング'],
-      ['price_hd=', '無期限', 'HQ版ダウンロード ＋HQ版ストリーミング'],
-      # ['price_dl=', '無期限', 'ダウンロード ＋ストリーミング'],
-      ['price_st=', '7日間', 'HQ版ダウンロード ＋HQ版ストリーミング']
-    ].each do |setter, valid_period, label|
-      price_area = doc.at_xpath('//label[' +
-        "div[p[.=\"#{label}\"]]" +
-        'and div[' +
-        "p[text()=\"#{valid_period}\"]" +
-        'and div[div[p[contains(., "円")]]]' +
-        ']' +
-        ']')
-      next unless price_area
+    doc.xpath("//label[starts-with(@for, \"#{cid}\")]").each do |radio_label|
+      suffix = radio_label['for'].delete_prefix(cid)
 
-      price_dom = assert_one_dom(
-        price_area.xpath('.//p[contains(., "円") and not(contains(@class, "line-through"))]'),
-        'price'
-      )
+      price_doms =
+        radio_label.children[1].children[1].child.
+          xpath('.//p[contains(., "円") and not(contains(@class, "line-through"))]')
+      price_dom = assert_one_dom(price_doms, 'price')
       price = get_price_from_text(price_dom.content)
+
+      setter = video_price_setter_for_id_suffix(suffix)
       video.send(setter, price)
     end
 
@@ -81,6 +65,21 @@ class Fanza
 
   def url_video(cid)
     "#{HOST_URL}/av/content/?id=#{cid}"
+  end
+
+  def video_price_setter_for_id_suffix(suffix)
+    case suffix
+    when '', 'rp' # HACK: Quality is normal or HD(HQ). 'rp' is 7days DL, not streaming only.
+      'price_st='
+    when 'dl'
+      'price_dl='
+    when 'dl6'  #HACK: HD for 2D but HQ for VR.
+      'price_hd='
+    when 'dl7', 'dl8' # HACK: 'dl8' is VR8K, not 4K.
+      'price_4k='
+    else
+      raise "unexpected id suffix: #{suffix}"
+    end
   end
 
   def get_video_page_root_node(browser_page, cid)

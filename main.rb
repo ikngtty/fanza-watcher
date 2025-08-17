@@ -12,7 +12,7 @@ class CLI < Thor
   desc 'scrape CID', 'Scrape a video (for debug)'
   def scrape(cid)
     PlaywrightUtil.use_browser_page do |browser_page|
-      puts Fanza.new.fetch_video(browser_page, cid)
+      puts Fanza.new.fetch_video(browser_page, cid) || 'failed to fetch'
     end
   end
 
@@ -28,7 +28,7 @@ class CLI < Thor
     PlaywrightUtil.use_browser_page do |browser_page|
       video = Fanza.new.fetch_video(browser_page, cid)
     end
-    unless video.title # FIXME: When cid is wrong, title is "Not Found" and fetching succeeds.
+    unless video
       puts 'failed to fetch'
       exit 1
     end
@@ -41,9 +41,15 @@ class CLI < Thor
   def update
     updates = nil
     PlaywrightUtil.use_browser_page do |browser_page|
-      updates = VideoDao.new.all.map do |video|
+      updates = VideoDao.new.all.filter_map do |video|
         new_video = Fanza.new.fetch_video(browser_page, video.cid)
         sleep 1
+
+        unless new_video
+          puts "failed to fetch #{video.cid}"
+          next
+        end
+
         VideoUpdate.new(video, new_video)
       end
     end

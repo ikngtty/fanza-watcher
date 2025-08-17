@@ -15,7 +15,7 @@ class Fanza
     doc = get_video_page_root_node(browser_page, cid)
 
     # NOTE: Duplicate the node to cut children.
-    title_dom = assert_one_dom(doc.xpath('//span[parent::h1]'), 'title').dup
+    title_dom = assert_one_dom(doc.css('h1'), 'title').dup
 
     sales_info_doms = title_dom.css('span.text-red-600')
     if sales_info_doms.any?
@@ -29,6 +29,14 @@ class Fanza
       additional_info_dom = assert_one_dom(additional_info_doms, 'additional info')
       video.additional_info = additional_info_dom.content
       additional_info_dom.unlink
+    end
+
+    if title_dom.children.length >= 2 &&
+      title_dom.children[0].content == '404' &&
+      title_dom.children[1].content == 'Not Found'
+
+      Logger.warn("Not Found for #{cid}")
+      return nil
     end
 
     video.title = title_dom.content

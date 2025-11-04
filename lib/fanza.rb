@@ -18,18 +18,12 @@ class Fanza
     title_dom = assert_one_dom(doc.css('h1'), 'title').dup
 
     sales_info_doms = title_dom.css('span.text-red-600')
-    if sales_info_doms.any?
-      sales_info_dom = assert_one_dom(sales_info_doms, 'sales info')
-      video.sales_info = sales_info_dom.content
-      sales_info_dom.unlink
-    end
+    video.sales_info = sales_info_doms.map(&:content).join
+    sales_info_doms.unlink
 
     additional_info_doms = title_dom.css('span.text-red-900')
-    if additional_info_doms.any?
-      additional_info_dom = assert_one_dom(additional_info_doms, 'additional info')
-      video.additional_info = additional_info_dom.content
-      additional_info_dom.unlink
-    end
+    video.additional_info = additional_info_doms.map(&:content).join
+    additional_info_doms.unlink
 
     if title_dom.children.length >= 2 &&
       title_dom.children[0].content == '404' &&

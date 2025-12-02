@@ -19,10 +19,6 @@ class Video
     video
   end
 
-  def url
-    "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=#{cid}/"
-  end
-
   def as_json(*)
     {
       JSON.create_id => self.class.name,

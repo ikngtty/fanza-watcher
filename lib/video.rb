@@ -5,6 +5,7 @@ require 'json'
 class Video
   attr_accessor :cid, :title, :sales_info, :additional_info,
                 :price_4k, :price_hd, :price_dl, :price_st
+  # TODO: Rename "additiona_info" to "release_status".
 
   def self.json_create(object)
     video = Video.new

@@ -1,14 +1,6 @@
-FROM ruby:3.4.7-slim-bookworm
-
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
-    && rm -rf /var/lib/apt/lists/*
+FROM ruby:3.4.7-bookworm
 
 WORKDIR /usr/src/app
-
-RUN npm install playwright
-RUN npx playwright install chromium --with-deps
 
 COPY Gemfile Gemfile.lock ./
 ENV BUNDLE_FROZEN=true

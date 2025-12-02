@@ -4,16 +4,13 @@ require 'thor'
 
 require_relative './lib/discord'
 require_relative './lib/fanza'
-require_relative './lib/playwright_util'
 require_relative './lib/video_dao'
 require_relative './lib/video_update'
 
 class CLI < Thor
   desc 'scrape CID', 'Scrape a video (for debug)'
   def scrape(cid)
-    PlaywrightUtil.use_browser_page do |browser_page|
-      puts Fanza.new.fetch_video(browser_page, cid) || 'failed to fetch'
-    end
+    puts Fanza.new.fetch_video(cid) || 'failed to fetch'
   end
 
   desc 'add CID', 'Add a video to watch'
@@ -24,10 +21,7 @@ class CLI < Thor
       exit 1
     end
 
-    video = nil
-    PlaywrightUtil.use_browser_page do |browser_page|
-      video = Fanza.new.fetch_video(browser_page, cid)
-    end
+    video = Fanza.new.fetch_video(cid)
     unless video
       puts 'failed to fetch'
       exit 1
@@ -39,32 +33,19 @@ class CLI < Thor
 
   desc 'update', 'Update videos'
   def update
-    updates = nil
-    PlaywrightUtil.use_browser_page do |browser_page|
-      updates = VideoDao.new.all.filter_map do |video|
-        new_video = Fanza.new.fetch_video(browser_page, video.cid)
-        sleep 1
+    updates = VideoDao.new.all.filter_map do |video|
+      new_video = Fanza.new.fetch_video(video.cid)
+      sleep 1
 
-        unless new_video
-          puts "failed to fetch #{video.cid}"
-          next
-        end
-
-        VideoUpdate.new(video, new_video)
+      unless new_video
+        puts "failed to fetch #{video.cid}"
+        next
       end
+
+      VideoUpdate.new(video, new_video)
     end
     Discord.new.post_video_updates(updates.find_all(&:price_change?))
     updates.find_all(&:change?).each(&:save)
-  end
-
-  desc 'inspect_price_id', 'Inspect price ids (for debug)'
-  def inspect_price_id
-    PlaywrightUtil.use_browser_page do |browser_page|
-      VideoDao.new.all.each do |video|
-        Fanza.new.inspect_video_page_price_id(browser_page, video.cid)
-        sleep 1
-      end
-    end
   end
 
   desc 'remove CID', 'Remove a video'

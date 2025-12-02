@@ -1,4 +1,4 @@
-IMAGE_TAG := ikngtty/fanza-watcher
+IMAGE_TAG := ikngtty/fanza-watcher:use-inner-api
 ENV_FILE_OPTION := $(if $(wildcard .env),--env-file=.env,)
 
 .PHONY: run build build_and_run

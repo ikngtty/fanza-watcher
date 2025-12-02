@@ -1,4 +1,4 @@
-FROM ruby:3.4.5-slim-bookworm
+FROM ruby:3.4.7-slim-bookworm
 
 RUN apt-get update && apt-get install -y \
     nodejs \

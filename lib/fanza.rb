@@ -6,6 +6,14 @@ require_relative './logger'
 require_relative './video'
 
 class Fanza
+  HOST_URL = 'https://video.dmm.co.jp'
+
+  class << self
+    def url_video(cid)
+      "#{HOST_URL}/av/content/?id=#{cid}"
+    end
+  end
+
   def fetch_video(cid)
     uri = URI.parse('https://api.video.dmm.co.jp/graphql')
     http = Net::HTTP.new(uri.host, uri.port)

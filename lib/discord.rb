@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './fanza'
+
 class Discord
   def post_video_updates(updates)
     webhook_url = URI.parse(ENV['DISCORD_WEBHOOK_URL'])
@@ -44,7 +46,7 @@ class Discord
     end
 
     { title: update.after.title,
-      url: update.after.url,
+      url: Fanza.url_video(update.after.cid),
       fields: fields }
   end
 end

@@ -8,6 +8,12 @@ require_relative './video'
 class Fanza
   HOST_URL = 'https://video.dmm.co.jp'
 
+  class << self
+    def url_video(cid)
+      "#{HOST_URL}/av/content/?id=#{cid}"
+    end
+  end
+
   def fetch_video(browser_page, cid)
     video = Video.new
     video.cid = cid
@@ -65,10 +71,6 @@ class Fanza
 
   private
 
-  def url_video(cid)
-    "#{HOST_URL}/av/content/?id=#{cid}"
-  end
-
   def video_price_setter_for_id_suffix(suffix)
     case suffix
     when '', 'rp' # HACK: Quality is normal or HD(HQ). 'rp' is 7days DL, not streaming only.
@@ -93,7 +95,7 @@ class Fanza
       }
     ])
 
-    url = url_video(cid)
+    url = self.class.url_video(cid)
     Logger.info("Visiting #{url}")
     browser_page.goto(url)
     Logger.info("Visited #{url}")

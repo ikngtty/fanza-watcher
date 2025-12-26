@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'nokogiri'
+require 'net/http'
 
 require_relative './logger'
 require_relative './video'
@@ -14,62 +14,117 @@ class Fanza
     end
   end
 
-  def fetch_video(browser_page, cid)
-    video = Video.new
-    video.cid = cid
+  def fetch_video(cid)
+    uri = URI.parse('https://api.video.dmm.co.jp/graphql')
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    doc = get_video_page_root_node(browser_page, cid)
+    headers = { 'Content-Type' => 'application/json' }
 
-    # NOTE: Duplicate the node to cut children.
-    title_dom = assert_one_dom(doc.css('h1'), 'title').dup
+    request_body = <<-GRAPHQL
+      {"operationName":"ContentPageData","query":"query ContentPageData($id: ID!) {
+        ppvContent(id: $id) {
+          ...ContentData
+        }
+      }
+      fragment ContentData on PPVContent {
+        id
+        title
+        releaseStatus
+        contentType
+        priceSummary {
+          campaign {
+            title
+          }
+        }
+        products {
+          ...ProductData
+        }
+      }
+      fragment ProductData on PPVProduct {
+        id
+        deliveryUnit {
+          id
+          priority
+          streamMaxQualityGroup
+          downloadMaxQualityGroup
+        }
+        expireDays
+        priceInclusiveTax
+        sale {
+          priceInclusiveTax
+        }
+      }","variables":{"id":"#{cid}"}}
+    GRAPHQL
+    # Remove newlines and extra spaces to create valid JSON.
+    request_body = request_body.gsub(/\s+/, ' ').strip
 
-    sales_info_doms = title_dom.css('span.text-red-600')
-    video.sales_info = sales_info_doms.map(&:content).join
-    sales_info_doms.unlink
+    Logger.info("Fetching #{cid}")
+    response = http.post(uri.path, request_body, headers)
+    response.value # Raise an error when the response's status code is not success.
+    Logger.info("Got data: #{response.body}")
 
-    additional_info_doms = title_dom.css('span.text-red-900')
-    video.additional_info = additional_info_doms.map(&:content).join
-    additional_info_doms.unlink
-
-    if title_dom.children.length >= 2 &&
-      title_dom.children[0].content == '404' &&
-      title_dom.children[1].content == 'Not Found'
-
+    ppvContent = JSON.parse(response.body)['data']['ppvContent'] # TODO: Validate.
+    unless ppvContent
       Logger.warn("Not Found for #{cid}")
       return nil
     end
 
-    video.title = title_dom.content
-
-    doc.xpath("//label[starts-with(@for, \"#{cid}\")]").each do |radio_label|
-      suffix = radio_label['for'].delete_prefix(cid)
-
-      price_doms =
-        radio_label.children[1].children[1].child.
-          xpath('.//p[contains(., "円") and not(contains(@class, "line-through"))]')
-      price_dom = assert_one_dom(price_doms, 'price')
-      price = get_price_from_text(price_dom.content)
-
-      setter = video_price_setter_for_id_suffix(suffix)
-      video.send(setter, price)
+    video = Video.new
+    video.cid = cid
+    video.title = ppvContent['title']
+    video.sales_info = enclose(ppvContent.dig('priceSummary', 'campaign', 'title'))
+    video.additional_info = enclose(label_for_release_status(ppvContent['releaseStatus']))
+    ppvContent['products'].each do |product|
+      id_suffix = product['id'].delete_prefix(cid)
+      price_setter = video_price_setter_for_id_suffix(id_suffix)
+      price = product['sale'] ? product['sale']['priceInclusiveTax'] : product['priceInclusiveTax']
+      video.send(price_setter, price)
     end
-
     Logger.info("Scraped Video: #{video}")
     video
   end
 
-  def inspect_video_page_price_id(browser_page, cid)
-    doc = get_video_page_root_node(browser_page, cid)
+  private
 
-    doc.xpath("//label[starts-with(@for, \"#{cid}\")]").each do |radio_label|
-      suffix = radio_label['for'].delete_prefix(cid)
-      valid_period = radio_label.children[1].child.content
-      label = radio_label.child.children[1].content
-      puts "suffix: #{suffix}, valid_period: #{valid_period}, label: #{label}"
+  def kind_for_quality_group(group)
+    case group
+    when 'QUALITY_GROUP_SD', 'QUALITY_GROUP_VR_STANDARD'
+      'sd'
+    when 'QUALITY_GROUP_HD'
+      'hd'
+    when 'QUALITY_GROUP_4K'
+      '4k'
+    when 'QUALITY_GROUP_VR_HQ'
+      'hq'
+    when 'QUALITY_GROUP_VR_8K'
+      '8kvr'
+    else
+      raise "unexpected quality group: #{group}"
     end
   end
 
-  private
+  def label_for_release_status(status)
+    case status
+    when 'COMING_SOON'
+      '近日公開'
+    when 'PRE_ORDER'
+      '予約'
+    when 'PRE_RELEASE'
+      '先行公開'
+    when 'LATEST_RELEASE'
+      '最新作'
+    when 'NEW_RELEASE'
+      '新作'
+    when 'SEMI_NEW_RELEASE'
+      '準新作'
+    when '', nil
+      ''
+    else
+      raise "unexpected release status: #{status}"
+    end
+  end
 
   def video_price_setter_for_id_suffix(suffix)
     case suffix
@@ -77,7 +132,7 @@ class Fanza
       'price_st='
     when 'dl'
       'price_dl='
-    when 'dl6'  #HACK: HD for 2D but HQ for VR.
+    when 'dl6' # HACK: HD for 2D but HQ for VR.
       'price_hd='
     when 'dl7', 'dl8' # HACK: 'dl8' is VR8K, not 4K.
       'price_4k='
@@ -86,31 +141,9 @@ class Fanza
     end
   end
 
-  def get_video_page_root_node(browser_page, cid)
-    browser_page.context.add_cookies([
-      {
-        url: HOST_URL,
-        name: 'age_check_done',
-        value: '1'
-      }
-    ])
+  def enclose(text)
+    return text if text.nil? || text.empty?
 
-    url = self.class.url_video(cid)
-    Logger.info("Visiting #{url}")
-    browser_page.goto(url)
-    Logger.info("Visited #{url}")
-    html = browser_page.content
-    # Logger.info("Got HTML: #{html}")
-
-    Nokogiri::HTML5(html)
-  end
-
-  def get_price_from_text(text)
-    text.strip.delete_suffix('円').delete(',').to_i
-  end
-
-  def assert_one_dom(doms, dom_kind)
-      raise "cannot specify the DOM of #{dom_kind}: #{doms}" unless doms.length == 1
-      doms.first
+    "【#{text}】"
   end
 end

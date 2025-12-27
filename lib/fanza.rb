@@ -65,18 +65,18 @@ class Fanza
     Logger.info("Got data: #{response.body}")
     response.value # Raise an error when the response's status code is not success.
 
-    ppvContent = JSON.parse(response.body)['data']['ppvContent'] # TODO: Validate.
-    unless ppvContent
+    ppv_content = JSON.parse(response.body)['data']['ppvContent'] # TODO: Validate.
+    unless ppv_content
       Logger.warn("Not Found for #{cid}")
       return nil
     end
 
     video = Video.new
     video.cid = cid
-    video.title = ppvContent['title']
-    video.sales_info = enclose(ppvContent.dig('priceSummary', 'campaign', 'title'))
-    video.additional_info = enclose(label_for_release_status(ppvContent['releaseStatus']))
-    ppvContent['products'].each do |product|
+    video.title = ppv_content['title']
+    video.sales_info = enclose(ppv_content.dig('priceSummary', 'campaign', 'title'))
+    video.additional_info = enclose(label_for_release_status(ppv_content['releaseStatus']))
+    ppv_content['products'].each do |product|
       id_suffix = product['id'].delete_prefix(cid)
       price_setter = video_price_setter_for_id_suffix(id_suffix)
       price = product['sale'] ? product['sale']['priceInclusiveTax'] : product['priceInclusiveTax']

@@ -48,14 +48,14 @@ class Discord
       if update.sales_info_change?
         "#{update.before.sales_info} -> #{update.after.sales_info}"
       else
-        update.after.sales_info
+        update.after.sales_info || ''
       end
     fields << { name: 'セールス情報', value: sales_info_text }
     additional_info_text =
       if update.additional_info_change?
         "#{update.before.additional_info} -> #{update.after.additional_info}"
       else
-        update.after.additional_info
+        update.after.additional_info || ''
       end
     fields << { name: '付加情報', value: additional_info_text }
 

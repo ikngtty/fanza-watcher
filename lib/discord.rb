@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './fanza'
+require_relative './logger'
 
 class Discord
   def post_video_updates(updates)
@@ -17,7 +18,12 @@ class Discord
       response = http.post(webhook_url.path,
                            params.to_json,
                            { 'Content-Type' => 'application/json' })
-      raise "bad response: #{response.inspect}" if response.code != '204'
+      begin
+        response.value
+      rescue Net::HTTPExceptions => e
+        Logger.error("Discord response: #{response.body}")
+        raise e
+      end
     end
   end
 

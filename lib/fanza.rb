@@ -62,8 +62,8 @@ class Fanza
 
     Logger.info("Fetching #{cid}")
     response = http.post(uri.path, request_body, headers)
-    response.value # Raise an error when the response's status code is not success.
     Logger.info("Got data: #{response.body}")
+    response.value # Raise an error when the response's status code is not success.
 
     ppvContent = JSON.parse(response.body)['data']['ppvContent'] # TODO: Validate.
     unless ppvContent

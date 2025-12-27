@@ -11,4 +11,8 @@ class Logger
   def self.warn(message)
     log('WARN', message)
   end
+
+  def self.error(message)
+    log('ERROR', message)
+  end
 end

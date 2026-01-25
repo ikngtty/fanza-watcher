@@ -3,16 +3,15 @@
 require 'json'
 
 class Video
-  attr_accessor :cid, :title, :sales_info, :additional_info,
+  attr_accessor :cid, :title, :sales_info, :release_status,
                 :price_4k, :price_hd, :price_dl, :price_st
-  # TODO: Rename "additiona_info" to "release_status".
 
   def self.json_create(object)
     video = Video.new
     video.cid = object['cid']
     video.title = object['title']
     video.sales_info = object['sales_info']
-    video.additional_info = object['additional_info']
+    video.release_status = object['release_status']
     video.price_4k = object['price_4k']
     video.price_hd = object['price_hd']
     video.price_dl = object['price_dl']
@@ -26,7 +25,7 @@ class Video
       cid: cid,
       title: title,
       sales_info: sales_info,
-      additional_info: additional_info,
+      release_status: release_status,
       price_4k: price_4k,
       price_hd: price_hd,
       price_dl: price_dl,
@@ -39,7 +38,7 @@ class Video
   end
 
   def to_s
-    "#{cid} #{sales_info}#{additional_info}#{title} " \
+    "#{cid} #{sales_info}#{release_status}#{title} " \
     "#{price_4k},#{price_hd},#{price_dl},#{price_st}"
   end
 end

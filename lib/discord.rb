@@ -51,13 +51,13 @@ class Discord
         update.after.sales_info || ''
       end
     fields << { name: 'セールス情報', value: sales_info_text }
-    additional_info_text =
-      if update.additional_info_change?
-        "#{update.before.additional_info} -> #{update.after.additional_info}"
+    release_status_text =
+      if update.release_status_change?
+        "#{update.before.release_status} -> #{update.after.release_status}"
       else
-        update.after.additional_info || ''
+        update.after.release_status || ''
       end
-    fields << { name: '付加情報', value: additional_info_text }
+    fields << { name: 'リリース時期', value: release_status_text }
 
     { title: update.after.title,
       url: Fanza.url_video(update.after.cid),

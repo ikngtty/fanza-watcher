@@ -18,8 +18,8 @@ class VideoUpdate
     @before.sales_info != @after.sales_info
   end
 
-  def additional_info_change?
-    @before.additional_info != @after.additional_info
+  def release_status_change?
+    @before.release_status != @after.release_status
   end
 
   def price_4k_change?
@@ -43,7 +43,7 @@ class VideoUpdate
   end
 
   def change?
-    title_change? || sales_info_change? || additional_info_change? || price_change?
+    title_change? || sales_info_change? || release_status_change? || price_change?
   end
 
   def save

@@ -76,11 +76,12 @@ class Fanza
     video.title = ppv_content['title']
     video.sales_info = enclose(ppv_content.dig('pricing', 'sale', 'name'))
     video.release_status = enclose(label_for_release_status(ppv_content['releaseStatus']))
+    video.prices = {}
     ppv_content['products'].each do |product|
       id_suffix = product['id'].delete_prefix(cid)
-      price_setter = video_price_setter_for_id_suffix(id_suffix)
+      price_tag = video_price_tag_for_id_suffix(id_suffix)
       price = product['pricing']['effectivePriceInclusiveTax'] || product['pricing']['regularPriceInclusiveTax']
-      video.send(price_setter, price)
+      video.prices[price_tag] = price
     end
     Logger.info("Scraped Video: #{video}")
     video
@@ -126,16 +127,16 @@ class Fanza
     end
   end
 
-  def video_price_setter_for_id_suffix(suffix)
+  def video_price_tag_for_id_suffix(suffix)
     case suffix
     when '', 'rp' # HACK: Quality is normal or HD(HQ). 'rp' is 7days DL, not streaming only.
-      'price_st='
+      :st
     when 'dl'
-      'price_dl='
+      :dl
     when 'dl6' # HACK: HD for 2D but HQ for VR.
-      'price_hd='
+      :hd
     when 'dl7', 'dl8' # HACK: 'dl8' is VR8K, not 4K.
-      'price_4k='
+      :'4k'
     else
       raise "unexpected id suffix: #{suffix}"
     end

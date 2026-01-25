@@ -3,8 +3,9 @@
 require 'json'
 
 class Video
-  attr_accessor :cid, :title, :sales_info, :release_status,
-                :price_4k, :price_hd, :price_dl, :price_st
+  attr_accessor :cid, :title, :sales_info, :release_status, :prices
+
+  PRICE_TAGS = %i[4k hd dl st].freeze
 
   def self.json_create(object)
     video = Video.new
@@ -12,10 +13,7 @@ class Video
     video.title = object['title']
     video.sales_info = object['sales_info']
     video.release_status = object['release_status']
-    video.price_4k = object['price_4k']
-    video.price_hd = object['price_hd']
-    video.price_dl = object['price_dl']
-    video.price_st = object['price_st']
+    video.prices = object['prices'].transform_keys(&:to_sym)
     video
   end
 
@@ -26,10 +24,7 @@ class Video
       title: title,
       sales_info: sales_info,
       release_status: release_status,
-      price_4k: price_4k,
-      price_hd: price_hd,
-      price_dl: price_dl,
-      price_st: price_st
+      prices: prices
     }
   end
 
@@ -38,7 +33,7 @@ class Video
   end
 
   def to_s
-    "#{cid} #{sales_info}#{release_status}#{title} " \
-    "#{price_4k},#{price_hd},#{price_dl},#{price_st}"
+    prices_text = PRICE_TAGS.filter_map { |tag| "#{tag}:#{prices[tag]}" if prices[tag] }.join(',')
+    "#{cid} #{sales_info}#{release_status}#{title} #{prices_text}"
   end
 end

@@ -44,7 +44,7 @@ class CLI < Thor
 
       VideoUpdate.new(video, new_video)
     end
-    Discord.new.post_video_updates(updates.find_all(&:price_change?))
+    Discord.new.post_video_updates(updates.find_all(&:any_price_change?))
     updates.find_all(&:change?).each(&:save)
   end
 

@@ -2,6 +2,7 @@
 
 require_relative './fanza'
 require_relative './logger'
+require_relative './video'
 
 class Discord
   def post_video_updates(updates)
@@ -32,17 +33,11 @@ class Discord
   def create_embed_of_video_update(update)
     fields = []
     fields << { name: 'タイトル', value: "#{update.before.title} -> #{update.after.title}" } if update.title_change?
-    if update.price_4k_change?
-      fields << { name: '4K価格', value: "#{update.before.price_4k}円 -> #{update.after.price_4k}円" }
-    end
-    if update.price_hd_change?
-      fields << { name: 'HD価格', value: "#{update.before.price_hd}円 -> #{update.after.price_hd}円" }
-    end
-    if update.price_dl_change?
-      fields << { name: 'DL価格', value: "#{update.before.price_dl}円 -> #{update.after.price_dl}円" }
-    end
-    if update.price_st_change?
-      fields << { name: '配信価格', value: "#{update.before.price_st}円 -> #{update.after.price_st}円" }
+    Video::PRICE_TAGS.each do |tag|
+      if update.price_change?(tag)
+        fields << { name: "#{label_for_price_tag(tag)}価格",
+                    value: "#{update.before.prices[tag]}円 -> #{update.after.prices[tag]}円" }
+      end
     end
     sales_info_text =
       if update.sales_info_change?
@@ -62,5 +57,20 @@ class Discord
     { title: update.after.title,
       url: Fanza.url_video(update.after.cid),
       fields: fields }
+  end
+
+  def label_for_price_tag(tag)
+    case tag
+    when :'4k'
+      '4K'
+    when :hd
+      'HD'
+    when :dl
+      'DL'
+    when :st
+      '配信'
+    else
+      raise "unexpected price tag: #{tag}"
+    end
   end
 end

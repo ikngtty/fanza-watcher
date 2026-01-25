@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative './video'
 require_relative './video_dao'
 
 class VideoUpdate
@@ -22,28 +23,16 @@ class VideoUpdate
     @before.release_status != @after.release_status
   end
 
-  def price_4k_change?
-    @before.price_4k != @after.price_4k
+  def price_change?(tag)
+    @before.prices[tag] != @after.prices[tag]
   end
 
-  def price_hd_change?
-    @before.price_hd != @after.price_hd
-  end
-
-  def price_dl_change?
-    @before.price_dl != @after.price_dl
-  end
-
-  def price_st_change?
-    @before.price_st != @after.price_st
-  end
-
-  def price_change?
-    price_4k_change? || price_hd_change? || price_dl_change? || price_st_change?
+  def any_price_change?
+    Video::PRICE_TAGS.any? { |tag| price_change?(tag) }
   end
 
   def change?
-    title_change? || sales_info_change? || release_status_change? || price_change?
+    title_change? || sales_info_change? || release_status_change? || any_price_change?
   end
 
   def save

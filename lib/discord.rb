@@ -54,9 +54,11 @@ class Discord
       end
     fields << { name: 'リリース時期', value: release_status_text }
 
-    { title: update.after.title,
-      url: Fanza.url_video(update.after.cid),
-      fields: fields }
+    embed = { title: update.after.title,
+              url: Fanza.url_video(update.after.cid),
+              fields: fields }
+    embed['color'] = 0xff6666 if update.whole_price_change == :down
+    embed
   end
 
   def label_for_price_tag(tag)

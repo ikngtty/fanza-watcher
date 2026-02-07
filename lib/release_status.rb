@@ -12,12 +12,12 @@ class ReleaseStatus
   end
 
   NONE = new('', '', 0).freeze
-  SEMI_NEW_RELEASE = new('SEMI_NEW_RELEASE', '【準新作】', 1).freeze
-  NEW_RELEASE = new('NEW_RELEASE', '【新作】', 2).freeze
-  LATEST_RELEASE = new('LATEST_RELEASE', '【最新作】', 3).freeze
-  PRE_RELEASE = new('PRE_RELEASE', '【先行公開】', 4).freeze
-  PRE_ORDER = new('PRE_ORDER', '【予約】', 5).freeze
-  COMING_SOON = new('COMING_SOON', '【近日公開】', 6).freeze
+  SEMI_NEW_RELEASE = new('SEMI_NEW_RELEASE', '準新作', 1).freeze
+  NEW_RELEASE = new('NEW_RELEASE', '新作', 2).freeze
+  LATEST_RELEASE = new('LATEST_RELEASE', '最新作', 3).freeze
+  PRE_RELEASE = new('PRE_RELEASE', '先行公開', 4).freeze
+  PRE_ORDER = new('PRE_ORDER', '予約', 5).freeze
+  COMING_SOON = new('COMING_SOON', '近日公開', 6).freeze
 
   private_class_method :new
 

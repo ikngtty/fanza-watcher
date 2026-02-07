@@ -75,7 +75,7 @@ class Fanza
     video = Video.new
     video.cid = cid
     video.title = ppv_content['title']
-    video.sales_info = enclose(ppv_content.dig('pricing', 'sale', 'name'))
+    video.sales_info = ppv_content.dig('pricing', 'sale', 'name')
     video.release_status = ReleaseStatus.from_value!(ppv_content['releaseStatus'] || '')
     video.prices = {}
     ppv_content['products'].each do |product|
@@ -120,11 +120,5 @@ class Fanza
     else
       raise "unexpected id suffix: #{suffix}"
     end
-  end
-
-  def enclose(text)
-    return text if text.nil? || text.empty?
-
-    "【#{text}】"
   end
 end

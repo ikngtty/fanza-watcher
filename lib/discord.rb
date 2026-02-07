@@ -41,16 +41,16 @@ class Discord
     end
     sales_info_text =
       if update.sales_info_change?
-        "#{update.before.sales_info} -> #{update.after.sales_info}"
+        "#{Video.enclose(update.before.sales_info)} -> #{Video.enclose(update.after.sales_info)}"
       else
-        update.after.sales_info || ''
+        Video.enclose(update.after.sales_info) || ''
       end
     fields << { name: 'セールス情報', value: sales_info_text }
     release_status_text =
       if update.release_status_change?
-        "#{update.before.release_status.label} -> #{update.after.release_status.label}"
+        "#{Video.enclose(update.before.release_status.label)} -> #{Video.enclose(update.after.release_status.label)}"
       else
-        update.after.release_status.label || ''
+        Video.enclose(update.after.release_status.label) || ''
       end
     fields << { name: 'リリース時期', value: release_status_text }
 

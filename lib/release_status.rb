@@ -29,6 +29,8 @@ class ReleaseStatus
     end
 
     def from_value!(value)
+      return nil if value.nil?
+
       from_value(value) || (raise ArgumentError, "unexpected value (given: \"#{value}\")")
     end
 
@@ -37,6 +39,8 @@ class ReleaseStatus
     end
 
     def from_label!(label)
+      return nil if label.nil?
+
       from_label(label) || (raise ArgumentError, "unexpected label (given: \"#{label}\")")
     end
   end

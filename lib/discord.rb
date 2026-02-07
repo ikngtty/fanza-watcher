@@ -49,9 +49,9 @@ class Discord
     fields << { name: 'セールス情報', value: sales_info_text }
     release_status_text =
       if update.release_status_change?
-        "#{Video.enclose(update.before.release_status.label)} -> #{Video.enclose(update.after.release_status.label)}"
+        "#{Video.enclose(update.before.release_status&.label)} -> #{Video.enclose(update.after.release_status&.label)}"
       else
-        Video.enclose(update.after.release_status.label) || ''
+        Video.enclose(update.after.release_status&.label) || ''
       end
     fields << { name: 'リリース時期', value: release_status_text }
 

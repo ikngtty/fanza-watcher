@@ -9,6 +9,10 @@ class Video
 
   PRICE_TAGS = %i[4k hd dl st].freeze
 
+  def initialize
+    @prices = {}
+  end
+
   class << self
     def enclose(text)
       return text if text.nil? || text.empty?
@@ -33,7 +37,7 @@ class Video
       cid: cid,
       title: title,
       sales_info: sales_info,
-      release_status: release_status.label,
+      release_status: release_status&.label,
       prices: prices
     }
   end
@@ -44,7 +48,7 @@ class Video
 
   def to_s
     sales_info_text = self.class.enclose(sales_info)
-    release_status_text = self.class.enclose(release_status.label)
+    release_status_text = self.class.enclose(release_status&.label)
     prices_text = PRICE_TAGS.filter_map { |tag| "#{tag}:#{prices[tag]}" if prices[tag] }.join(',')
     "#{cid} #{sales_info_text}#{release_status_text}#{title} #{prices_text}"
   end

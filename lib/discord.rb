@@ -2,6 +2,7 @@
 
 require_relative './fanza'
 require_relative './logger'
+require_relative './util'
 require_relative './video'
 
 class Discord
@@ -57,8 +58,17 @@ class Discord
     embed = { title: update.after.title,
               url: Fanza.url_video(update.after.cid),
               fields: fields }
-    embed['color'] = 0xff6666 if update.whole_price_change == :down
+    if video_update_is_hot?(update)
+      embed['color'] = 0xff6666
+    elsif update.whole_price_change == :down
+      embed['color'] = 0xffff66
+    end
+
     embed
+  end
+
+  def video_update_is_hot?(update)
+    Util.any?(update.after.sales_info) && update.after.release_status <= ReleaseStatus::SEMI_NEW_RELEASE
   end
 
   def label_for_price_tag(tag)

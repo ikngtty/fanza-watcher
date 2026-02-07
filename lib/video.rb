@@ -2,6 +2,8 @@
 
 require 'json'
 
+require_relative 'release_status'
+
 class Video
   attr_accessor :cid, :title, :sales_info, :release_status, :prices
 
@@ -12,7 +14,7 @@ class Video
     video.cid = object['cid']
     video.title = object['title']
     video.sales_info = object['sales_info']
-    video.release_status = object['release_status']
+    video.release_status = ReleaseStatus.from_label!(object['release_status'])
     video.prices = object['prices'].transform_keys(&:to_sym)
     video
   end
@@ -23,7 +25,7 @@ class Video
       cid: cid,
       title: title,
       sales_info: sales_info,
-      release_status: release_status,
+      release_status: release_status.label,
       prices: prices
     }
   end
@@ -34,6 +36,6 @@ class Video
 
   def to_s
     prices_text = PRICE_TAGS.filter_map { |tag| "#{tag}:#{prices[tag]}" if prices[tag] }.join(',')
-    "#{cid} #{sales_info}#{release_status}#{title} #{prices_text}"
+    "#{cid} #{sales_info}#{release_status.label}#{title} #{prices_text}"
   end
 end

@@ -48,9 +48,9 @@ class Discord
     fields << { name: 'セールス情報', value: sales_info_text }
     release_status_text =
       if update.release_status_change?
-        "#{update.before.release_status} -> #{update.after.release_status}"
+        "#{update.before.release_status.label} -> #{update.after.release_status.label}"
       else
-        update.after.release_status || ''
+        update.after.release_status.label || ''
       end
     fields << { name: 'リリース時期', value: release_status_text }
 

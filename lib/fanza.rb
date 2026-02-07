@@ -3,6 +3,7 @@
 require 'net/http'
 
 require_relative './logger'
+require_relative './release_status'
 require_relative './video'
 
 class Fanza
@@ -75,7 +76,7 @@ class Fanza
     video.cid = cid
     video.title = ppv_content['title']
     video.sales_info = enclose(ppv_content.dig('pricing', 'sale', 'name'))
-    video.release_status = enclose(label_for_release_status(ppv_content['releaseStatus']))
+    video.release_status = ReleaseStatus.from_value!(ppv_content['releaseStatus'])
     video.prices = {}
     ppv_content['products'].each do |product|
       id_suffix = product['id'].delete_prefix(cid)
@@ -103,27 +104,6 @@ class Fanza
       '8kvr'
     else
       raise "unexpected quality group: #{group}"
-    end
-  end
-
-  def label_for_release_status(status)
-    case status
-    when 'COMING_SOON'
-      '近日公開'
-    when 'PRE_ORDER'
-      '予約'
-    when 'PRE_RELEASE'
-      '先行公開'
-    when 'LATEST_RELEASE'
-      '最新作'
-    when 'NEW_RELEASE'
-      '新作'
-    when 'SEMI_NEW_RELEASE'
-      '準新作'
-    when '', nil
-      ''
-    else
-      raise "unexpected release status: #{status}"
     end
   end
 

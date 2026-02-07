@@ -76,7 +76,7 @@ class Fanza
     video.cid = cid
     video.title = ppv_content['title']
     video.sales_info = enclose(ppv_content.dig('pricing', 'sale', 'name'))
-    video.release_status = ReleaseStatus.from_value!(ppv_content['releaseStatus'])
+    video.release_status = ReleaseStatus.from_value!(ppv_content['releaseStatus'] || '')
     video.prices = {}
     ppv_content['products'].each do |product|
       id_suffix = product['id'].delete_prefix(cid)
